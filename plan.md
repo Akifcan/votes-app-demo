@@ -1,0 +1,6 @@
+create ui [ x ]
+add votes [ x ]
+remove votes [ ]
+edit votes [ ]
+get vote values [ ]
+save to db [ ]
