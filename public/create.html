@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaylar</title>
+    <link rel="stylesheet" href="./assets/styles/main.css">
+</head>
+
+<body class="overflow-hidden">
+    <div class="floating-action-button" id="showVotes">
+        <i class="fa fa-eye fa-2x"></i>
+    </div>
+    <div class="notification-container">
+    </div>
+
+    <div class="vote-created">
+        <h1>Oylamanız Oluşturulmuştur!</h1>
+
+        <p>Bu oylamayı paylaşmak için linki kopyalayın</p>
+
+        <div class="link">asdfasdfasdf</div>
+    </div>
+
+    <div class="created-votes" id="createdVotes">
+        <form class="vote-list" id="vote-list">
+            <!-- <div class="vote">
+                <button title="Düzenle" class="vote-action">
+                    <i class="fa fa-pen"></i>
+                </button>
+                <button title="Sil" class="vote-action">
+                    <i class="fa fa-trash"></i>
+                </button>
+                <form>
+                    <h3>Bir Başlık Girin</h3>
+                    <input id="name" required maxlength="50" type="text">
+                    <h3>Açıklama Metniniz</h3>
+                    <textarea id="description" required maxlength="255" rows="5"></textarea>
+                    <h3>Dosya Seçin</h3>
+                    <input id="file" required type="file">
+                </form>
+            </div> -->
+            <button type="submit" class="share">Paylaş</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Oylamanızı Oluşturun</h1>
+        <form id="create">
+            <h3>Bir Başlık Girin</h3>
+            <input id="name" required maxlength="50" type="text">
+            <h3>Açıklama Metniniz</h3>
+            <textarea id="description" required maxlength="255" rows="5"></textarea>
+            <h3>Dosya Seçin</h3>
+            <input id="file" required type="file">
+            <button type="submit">Oluştur</button>
+        </form>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"
+        integrity="sha512-RXf+QSDCUQs5uwRKaDoXt55jygZZm2V++WUZduaU/Ui/9EGp3f/2KZVahFZBKGH0s774sd3HmrhUy+SgOFQLVQ=="
+        crossorigin="anonymous"></script>
+    <script src="./assets/scripts/create.js"></script>
+
+</body>
+
+</html>

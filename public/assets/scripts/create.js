@@ -1,5 +1,12 @@
 const allowedTypes = ['image/png', 'image/jpg', 'image/gif', 'image/jpeg', 'audio/wav', 'audio/mp3', 'video/mp4', 'audio/mpeg']
 
+const getBase64 = (file) => new Promise(function (resolve, reject) {
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = (error) => reject('Error: ', error);
+})
+
 window.addEventListener('DOMContentLoaded', _ => {
     const create = document.getElementById('create')
     const showVotes = document.getElementById('showVotes')
@@ -7,6 +14,12 @@ window.addEventListener('DOMContentLoaded', _ => {
     const name = document.getElementById('name')
     const description = document.getElementById('description')
     const file = document.getElementById('file')
+    const share = document.getElementById('share')
+    const voteList = document.getElementById('vote-list')
+    const voteCreated = document.querySelector('.vote-created')
+    const files = []
+
+    checkDetails()
 
     class Votes {
 
@@ -15,12 +28,14 @@ window.addEventListener('DOMContentLoaded', _ => {
             this.description = description
             this.file = file
             this.fileType = file.type
-            console.log(this.file);
+            console.log(this.fileType);
         }
 
         createElement() {
             if (allowedTypes.includes(this.fileType)) {
                 const fileUrl = URL.createObjectURL(this.file)
+                files.push({ file: this.file, type: this.fileType.split('/')[1] })
+                console.log(this.fileType.split('/')[1]);
                 let file
                 const div = document.createElement('div')
                 div.classList.add('vote')
@@ -37,6 +52,11 @@ window.addEventListener('DOMContentLoaded', _ => {
                 div.appendChild(editButton)
                 div.appendChild(deleteButton)
 
+                deleteButton.addEventListener('click', _ => {
+                    document.getElementById('vote-list').removeChild(div)
+                    showNotification('Oylama listesinden kaldırıldı')
+                })
+
                 const nameTitle = document.createElement('h3')
                 const descriptionTitle = document.createElement('h3')
                 nameTitle.textContent = 'Başlık'
@@ -44,6 +64,9 @@ window.addEventListener('DOMContentLoaded', _ => {
 
                 const nameInput = document.createElement('input')
                 const descriptionInput = document.createElement('textarea')
+                nameInput.className = 'name'
+                descriptionInput.className = 'description'
+
                 nameInput.value = this.name
                 descriptionInput.value = this.description
 
@@ -89,6 +112,8 @@ window.addEventListener('DOMContentLoaded', _ => {
         votes.createElement()
     })
 
+    voteList.addEventListener('submit', getVoteValues)
+
     function showVotesElement() {
         if (document.body.classList.contains('overflow-hidden')) {
             document.body.classList.remove('overflow-hidden')
@@ -99,5 +124,60 @@ window.addEventListener('DOMContentLoaded', _ => {
         }
         createdVotes.classList.toggle('active')
         showVotes.classList.toggle('active')
+    }
+
+    function showNotification(text) {
+        const div = document.createElement('div')
+        div.innerHTML = `<div class="notification">${text}</div>`
+        document.querySelector('.notification-container').appendChild(div)
+
+        setTimeout(() => {
+            document.querySelector('.notification-container').removeChild(div)
+        }, 3000)
+
+    }
+
+    async function getVoteValues(e) {
+        e.preventDefault()
+        const votes = []
+        const total = document.querySelectorAll('.vote-list .vote').length
+        for (var i = 0; i < total; i++) {
+            const name = document.querySelectorAll('.vote input')[i].value
+            const description = document.querySelectorAll('.vote textarea')[i].value
+            votes.push({ name, description, file: await getBase64(files[i].file), fileType: files[i].type })
+        }
+        const { title, description, date } = JSON.parse(localStorage.voteDetails)
+        const result = await fetch('/create', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                title, description, date,
+                votes: votes
+            })
+        })
+        const data = await result.json()
+        if (result.status == 200) {
+            console.log('OK!');
+            copyLink(data.link)
+        }
+    }
+
+    function checkDetails() {
+        if (!localStorage.voteDetails || !localStorage.token) {
+            window.location.href = '/create-details.html'
+        }
+    }
+
+    function copyLink(slug) {
+        console.log(slug);
+        voteCreated.classList.add('active')
+        const link = document.querySelector('.link')
+        link.textContent = 'http://localhost:3000/vote/' + slug
+        link.addEventListener('click', _ => {
+            navigator.clipboard.writeText(link.textContent)
+                .then(copied => {
+                    showNotification('Link kopyalanmıştır')
+                })
+        })
     }
 })
