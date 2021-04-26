@@ -29,15 +29,36 @@ app.post('/create', async (req, res) => {
         fs.writeFileSync(`public/${fileName}`, item.file.split(reg).pop(), 'base64', function (err) {
             console.log(err);
         })
-        votes.push({ fileType: item.fileType, file: fileName, name: item.name, description: item.description })
+        votes.push({ fileType: item.fileType, totalVote: 0, file: fileName, name: item.name, description: item.description })
     })
     const create = await VoteModel.create({
-        title, description, endDate: Date.parse(date).toString(),
+        title, description, endDate: Date.parse(date).toString(), givenBy: [],
         slug: slug(title + Math.floor(Math.random() * 9999).toString() + ' oylamasi'),
         votes
     })
     console.log(create);
     res.status(200).json({ message: 'Oylamanız oluşturulmuştur', link: create.slug })
+})
+
+app.get('/give-vote/:slug', async (req, res) => {
+    try {
+        const { slug } = req.params
+        const { name: voteName } = req.headers
+        console.log(req.socket.remoteAddress);
+        const vote = await VoteModel.findOne({ slug, givenBy: { $nin: [req.socket.remoteAddress] } })
+        if (vote) {
+            const currentVote = vote.votes.find(vote => vote.name == voteName)
+            currentVote.totalVote++
+            vote.markModified('votes')
+            vote.givenBy.push(req.socket.remoteAddress)
+            await vote.save()
+            res.status(200).json({ message: 'Oyununuz kayıt edilmiştir. Teşekkürler 🗳🗳', totalVote: currentVote.totalVote })
+        } else {
+            res.status(200).json({ message: 'Zaten oy kullandınız' })
+        }
+    } catch (e) {
+        res.status(500).json({ message: 'Beklenmedik bir hata oluştu lütfen tekrar dener misiniz?' })
+    }
 })
 
 app.post('/vote/:slug', async (req, res) => {
@@ -48,6 +69,9 @@ app.post('/vote/:slug', async (req, res) => {
         res.status(404).json({ message: 'Bu oylamayı bulamadık' })
     }
 })
+
+
+
 
 
 mongoose.connect(process.env.DB_HOST, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })

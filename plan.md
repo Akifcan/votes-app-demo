@@ -9,6 +9,9 @@ save to db [ x ]
 show link [ x ]
 list votes [ x ]
 
-loader [ ]
-give vote [ ]
+loader [ x ]
+give vote [ x ]
+show results [ x ]
+control [ x ]
+
 socket [ ]

@@ -8,7 +8,8 @@ const VoteModel = mongoose.Schema({
     },
     endDate: String,
     description: String,
-    votes: []
+    votes: [],
+    givenBy: []
 })
 
 module.exports = mongoose.model('votes', VoteModel)

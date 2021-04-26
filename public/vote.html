@@ -11,20 +11,34 @@
 </head>
 
 <body>
+    <div class="notification-container">
+    </div>
+    <div class="loader">
+        <p>Lütfen Bekleyin</p>
+    </div>
     <div class="container">
         <img class="vote-img" src="/assets/images/vote.svg" alt="oylama" />
-        <h1 id="title" class="title">Başlık</h1>
-        <p id="description" class="description">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Soluta sint
-            quo eaque, veniam
-            impedit consectetur
-            minima corporis et alias! Sapiente, magnam ea dicta veniam voluptate velit culpa quam ipsam. Itaque?</p>
+        <h1 id="title" class="title"></h1>
+        <p id="description" class="description"></p>
         <button id="showVotes" onclick="showVotes">Oyla</button>
     </div>
 
-    <div class="give-vote-list">
+    <div class="vote-container">
+        <div class="give-vote-list">
+        </div>
+        <div class="vote-results">
+            <table>
+                <thead>
+                    <th>İsim</th>
+                    <th>Oy</th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <script src="/assets/scripts/vote.js"></script>
+    <script src="/assets/scripts/vote.js" type="module"></script>
 </body>
 
 </html>

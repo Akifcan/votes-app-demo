@@ -1,4 +1,5 @@
-const allowedTypes = ['image/png', 'image/jpg', 'image/gif', 'image/jpeg', 'audio/wav', 'audio/mp3', 'video/mp4', 'audio/mpeg']
+import { getElement, showNotification } from './utils.js'
+const allowedTypes = ['image/png', 'image/jpg', 'image/gif', 'image/jpeg', 'audio/wav', 'audio/mp3', 'video/mp4', 'audio/mpeg', 'image/webp']
 
 const getBase64 = (file) => new Promise(function (resolve, reject) {
     let reader = new FileReader();
@@ -17,6 +18,8 @@ window.addEventListener('DOMContentLoaded', _ => {
     const share = document.getElementById('share')
     const voteList = document.getElementById('vote-list')
     const voteCreated = document.querySelector('.vote-created')
+    const loader = document.querySelector('.loader')
+
     const files = []
 
     checkDetails()
@@ -28,14 +31,15 @@ window.addEventListener('DOMContentLoaded', _ => {
             this.description = description
             this.file = file
             this.fileType = file.type
-            console.log(this.fileType);
         }
 
         createElement() {
             if (allowedTypes.includes(this.fileType)) {
                 const fileUrl = URL.createObjectURL(this.file)
-                files.push({ file: this.file, type: this.fileType.split('/')[1] })
-                console.log(this.fileType.split('/')[1]);
+
+                const type = getElement(this.fileType)
+
+                files.push({ file: this.file, type: type[1] })
                 let file
                 const div = document.createElement('div')
                 div.classList.add('vote')
@@ -70,26 +74,12 @@ window.addEventListener('DOMContentLoaded', _ => {
                 nameInput.value = this.name
                 descriptionInput.value = this.description
 
-                if (this.fileType == 'image/png' || this.fileType == 'image/jpg' || this.fileType == 'image/jpeg' || this.fileType == 'image/gif') {
-                    file = document.createElement('img')
-                }
-
-                if (this.fileType == 'audio/wav' || this.fileType == 'audio/mp3' || this.fileType == 'audio/mpeg') {
-                    file = document.createElement('audio')
-                    file.setAttribute('controls', 'true')
-                }
-
-                if (this.fileType == 'video/mp4') {
-                    file = document.createElement('video')
-                    file.setAttribute('controls', 'true')
-                }
-
-                file.src = fileUrl
+                type[0].src = fileUrl
                 div.appendChild(nameTitle)
                 div.appendChild(nameInput)
                 div.appendChild(descriptionTitle)
                 div.appendChild(descriptionInput)
-                div.appendChild(file)
+                div.appendChild(type[0])
 
                 document.getElementById('vote-list').appendChild(div)
             } else {
@@ -126,16 +116,6 @@ window.addEventListener('DOMContentLoaded', _ => {
         showVotes.classList.toggle('active')
     }
 
-    function showNotification(text) {
-        const div = document.createElement('div')
-        div.innerHTML = `<div class="notification">${text}</div>`
-        document.querySelector('.notification-container').appendChild(div)
-
-        setTimeout(() => {
-            document.querySelector('.notification-container').removeChild(div)
-        }, 3000)
-
-    }
 
     async function getVoteValues(e) {
         e.preventDefault()
@@ -147,6 +127,7 @@ window.addEventListener('DOMContentLoaded', _ => {
             votes.push({ name, description, file: await getBase64(files[i].file), fileType: files[i].type })
         }
         const { title, description, date } = JSON.parse(localStorage.voteDetails)
+        loader.classList.add('active')
         const result = await fetch('/create', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
@@ -155,9 +136,9 @@ window.addEventListener('DOMContentLoaded', _ => {
                 votes: votes
             })
         })
+        loader.classList.remove('active')
         const data = await result.json()
         if (result.status == 200) {
-            console.log('OK!');
             copyLink(data.link)
         }
     }
@@ -169,7 +150,6 @@ window.addEventListener('DOMContentLoaded', _ => {
     }
 
     function copyLink(slug) {
-        console.log(slug);
         voteCreated.classList.add('active')
         const link = document.querySelector('.link')
         link.textContent = 'http://localhost:3000/vote/' + slug
