@@ -1,3 +1,9 @@
+# setup
+
+- `npm i`
+- dev - `npm run dev`
+- start - `npm run start`
+
 - create ui [ x ]
 - add votes [ x ]
 - remove votes [ x ]
