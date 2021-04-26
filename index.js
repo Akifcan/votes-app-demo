@@ -3,9 +3,13 @@ const fs = require('fs')
 const mongoose = require('mongoose')
 const VoteModel = require('./models/VoteModel')
 const slug = require('slug')
+const http = require('http');
+const { Server } = require("socket.io");
 require('dotenv').config()
 
 const app = express()
+const server = http.createServer(app);
+const io = new Server(server);
 
 const PORT = process.env.PORT || 3000
 app.use(express.static('public'))
@@ -70,11 +74,20 @@ app.post('/vote/:slug', async (req, res) => {
     }
 })
 
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('join-channel', slug => {
+        socket.join(slug)
+        socket.on('new-vote-given', _ => {
+            socket.to(slug).emit('sort-votes')
+        })
+    })
 
+})
 
 
 
 mongoose.connect(process.env.DB_HOST, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
     .then(connected => {
-        app.listen(PORT, _ => console.log(`Working on ${PORT}`))
+        server.listen(PORT, _ => console.log(`Working on ${PORT}`))
     })

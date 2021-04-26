@@ -8,10 +8,8 @@ save to file [ x ]
 save to db [ x ]
 show link [ x ]
 list votes [ x ]
-
 loader [ x ]
 give vote [ x ]
 show results [ x ]
 control [ x ]
-
-socket [ ]
+socket [ x ]

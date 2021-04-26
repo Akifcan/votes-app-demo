@@ -1,11 +1,22 @@
 import { getElement, showNotification } from './utils.js'
 document.addEventListener('DOMContentLoaded', _ => {
 
+
+    const socket = io()
     const voteList = document.querySelector('.give-vote-list')
     const loader = document.querySelector('.loader')
     const table = document.querySelector('table tbody')
     console.log(loader);
     getVotes()
+
+    socket.on('sort-votes', async _ => {
+        showNotification('Yeni bir oy verildi 🗳🗳')
+        const response = await fetch(`/vote/${getParameter()}`, {
+            method: 'POST'
+        })
+        const data = await response.json()
+        sortByVote(data)
+    })
 
     document.getElementById('showVotes').onclick = function () {
         voteList.classList.add('active')
@@ -55,6 +66,7 @@ document.addEventListener('DOMContentLoaded', _ => {
         if (response.status == 200) {
             showNotification(data.message)
             if (data?.totalVote) {
+                socket.emit('new-vote-given')
                 element.textContent = `Toplam Oy: ${data.totalVote} 🗳 📌`
             }
         }
@@ -66,6 +78,7 @@ document.addEventListener('DOMContentLoaded', _ => {
             method: 'POST'
         })
         const data = await response.json()
+        socket.emit('join-channel', data.slug)
         sortByVote(data)
         if (new Date().getTime() > parseInt(data.endDate)) {
             document.getElementById('showVotes').innerText = 'Sonuçları Görüntüle'
